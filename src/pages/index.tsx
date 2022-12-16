@@ -1,72 +1,78 @@
 import Head from "next/head";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
+import TargetIcon from "../components/icons/TargetIcon";
+import TickIcon from "../components/icons/TickIcon";
 import { Section } from "../components/layout";
 
+function getHoursDiff(startDate: any, endDate: any) {
+  const msInHour = 1000 * 60 * 60;
+
+  return Math.round(Math.abs(endDate - startDate) / msInHour);
+}
+
 export default function Home() {
-  const [issues, setIssues] = useState(Array.from({ length: 20 }));
+  const [issues, setIssues] = useState<any>([]);
+  const [error, setError] = useState("");
+  const [page, setPage] = useState(1);
   const fetchMoreData = () => {
     setTimeout(() => {
-      setIssues(issues.concat(Array.from({ length: 20 })));
+      setPage(page + 1);
     }, 3000);
   };
 
-  // console.log("isss", issues);
+  useEffect(() => {
+    const fetchIssuesData = async () => {
+      try {
+        const result = await fetch(
+          `https://api.github.com/repos/facebook/react/issues?page=${page}`
+        );
+        const response = await result.json();
+
+        if (response.length > 0) {
+          setError("");
+          setIssues([...issues, ...response]);
+        } else {
+          setError("Something went wrong, Please try later!");
+        }
+      } catch (err) {
+        console.log("error is-->", err);
+      }
+    };
+    fetchIssuesData();
+  }, [page]);
+
   return (
     <>
       <Head>
         <title>OfBusiness</title>
+        <meta name='description' content='assignment for frontend role' />
+        <meta name='keywords' content='facebook, frontend, assignment' />
       </Head>
       <div>
         <Section>
           <>
             <div className='lg:hidden text-sm px-3 flex space-x-6 mt-4 mb-2'>
               <div className='flex space-x-2 items-center'>
-                <div className=''>
-                  <svg
-                    aria-hidden='true'
-                    height='16'
-                    viewBox='0 0 16 16'
-                    version='1.1'
-                    width='16'
-                    data-view-component='true'
-                    className='text-green-700'
-                  >
-                    <path d='M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z'></path>
-                    <path
-                      fillRule='evenodd'
-                      d='M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z'
-                    ></path>
-                  </svg>
-                </div>
+                <TargetIcon />
                 <p>606 Open</p>
               </div>
-              <p className='font-light'>10,104 Closed</p>
+              <div className='flex space-x-2 items-center'>
+                <TickIcon />
+                <p className='font-light'>10,104 Closed</p>
+              </div>
             </div>
             <div className='max-w-7xl mx-auto border lg:my-8 rounded-md'>
               <div className='flex justify-center lg:justify-between px-3 py-4 border-b bg-gray-100 border-gray-200'>
                 <div className='hidden lg:flex space-x-6'>
                   <div className='flex space-x-2 items-center'>
-                    <div className=''>
-                      <svg
-                        aria-hidden='true'
-                        height='16'
-                        viewBox='0 0 16 16'
-                        version='1.1'
-                        width='16'
-                        data-view-component='true'
-                        className='text-green-700'
-                      >
-                        <path d='M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z'></path>
-                        <path
-                          fillRule='evenodd'
-                          d='M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z'
-                        ></path>
-                      </svg>
-                    </div>
+                    <TargetIcon />
                     <p>606 Open</p>
                   </div>
-                  <p className='font-light'>10,104 Closed</p>
+                  <div className='flex space-x-2 items-center'>
+                    <TickIcon />
+                    <p className='font-light'>10,104 Closed</p>
+                  </div>
                 </div>
                 <div className='flex justify-center space-x-8 font-light'>
                   <p>Author</p>
@@ -85,7 +91,7 @@ export default function Home() {
                   <div className='flex justify-center py-4'>Loading...</div>
                 }
               >
-                {issues.map((item, index) => (
+                {issues.map((item: any, index: number) => (
                   <div
                     key={index}
                     className={`p-3 ${
@@ -94,48 +100,52 @@ export default function Home() {
                         : "border-b border-gray-200"
                     } hover:bg-gray-100 flex space-x-3 items-start cursor-pointer`}
                   >
-                    <div className=''>
-                      <svg
-                        aria-hidden='true'
-                        height='16'
-                        viewBox='0 0 16 16'
-                        version='1.1'
-                        width='16'
-                        data-view-component='true'
-                        className='text-green-700'
-                      >
-                        <path d='M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z'></path>
-                        <path
-                          fillRule='evenodd'
-                          d='M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z'
-                        ></path>
-                      </svg>
-                    </div>
+                    <TargetIcon />
                     <div className='space-y-2'>
                       <div className='flex space-y-1 flex-wrap max-w-5xl'>
                         <p className='font-medium mr-2 text-gray-800'>
-                          Bug: with Jest and Testing Library, React schedules
-                          work with wrong Jest timers functions
+                          {item.title}
                         </p>
 
-                        <p className='bg-[#FBCA04] mr-2 rounded-full text-xs py-1 px-3'>
-                          Component: Developer Tools
-                        </p>
-                        <p className='bg-[#D4C5F9] mr-2 rounded-full text-xs py-1 px-3'>
-                          Status: Unconfirmed
-                        </p>
-                        <p className='bg-red-700 mr-2 text-white rounded-full text-xs py-1 px-3'>
-                          Type: Bug
-                        </p>
+                        {item?.labels?.map((detail: any, index: number) => (
+                          <div key={index}>
+                            <p
+                              style={{ backgroundColor: `#${detail.color}` }}
+                              className={`mr-2 rounded-full text-xs py-1 px-3 ${
+                                detail.name === "Type: Bug" ? "text-white" : ""
+                              }`}
+                            >
+                              {detail.name}
+                            </p>
+                          </div>
+                        ))}
                       </div>
                       <p className='font-light text-xs'>
-                        #25889 opened 4 hours ago by satyam
+                        #{item?.number} opened{" "}
+                        {getHoursDiff(new Date(), new Date(item.created_at)) <
+                        24
+                          ? `${getHoursDiff(
+                              new Date(),
+                              new Date(item.created_at)
+                            )} hours`
+                          : `${Math.floor(
+                              getHoursDiff(
+                                new Date(),
+                                new Date(item.created_at)
+                              ) / 24
+                            )} days`}{" "}
+                        ago by {item?.user?.login}
                       </p>
                     </div>
                   </div>
                 ))}
               </InfiniteScroll>
             </div>
+            {error && (
+              <p className='text-2xl text-center font-medium my-20 text-red-500'>
+                {error}
+              </p>
+            )}
           </>
         </Section>
       </div>
