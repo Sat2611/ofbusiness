@@ -18,7 +18,7 @@ export default function Home() {
   const fetchMoreData = () => {
     setTimeout(() => {
       setPage(page + 1);
-    }, 3000);
+    }, 2000);
   };
 
   useEffect(() => {
